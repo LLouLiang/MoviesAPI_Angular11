@@ -1,6 +1,7 @@
 ﻿using AngularMoviesAPI.Entities;
 using AngularMoviesAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,9 +57,11 @@ namespace AngularMoviesAPI.Controllers
     public class GenreController : ControllerBase
     {
         private readonly IRepository repository;
-        public GenreController(IRepository repository)
+        private readonly ILogger<GenreController> logger;
+        public GenreController(IRepository repository, ILogger<GenreController> logger)
         {
             this.repository = repository;
+            this.logger = logger;
         }
         [HttpGet] // api/genres
         [HttpGet("list")] // api/genres/list
@@ -67,6 +70,9 @@ namespace AngularMoviesAPI.Controllers
         // !!! because the return type changed to task<genre list>, hence here need to be updated to async taks as well
         public async Task<ActionResult<List<Genre>>> Get()
         {
+           
+            logger.LogInformation("------------------------ Get all the genres started --------------------------------");
+                
             // Here is getting from in-memory database, will be changed to webapi request
             return await repository.getAllGenres();
         }
@@ -74,9 +80,11 @@ namespace AngularMoviesAPI.Controllers
         // If here using the same method signature Get will caused exception at running time
         public ActionResult<Genre> Get(int id, string param2)
         {
+            logger.LogDebug("------------------------ Get genre by Id has been started --------------------------------");
             var genre = repository.getGenreById(id);
             if(genre == null)
             {
+                logger.LogWarning($"Genre with Id {id} not found");
                 return NotFound();
             }
             return genre;
@@ -84,7 +92,13 @@ namespace AngularMoviesAPI.Controllers
         [HttpGet("{Id:int}")]
         public IActionResult Get(int id)
         {
+            logger.LogDebug("get genre by Id has been called");
             var genre = repository.getGenreById(id);
+            if(genre == null)
+            {
+                logger.LogWarning($"Genre with Id {id} not found");
+                return NotFound();
+            }
             return Ok(genre); // ok means 200 okay and genre wil be return as a response
         }
         [HttpPost]
@@ -98,6 +112,8 @@ namespace AngularMoviesAPI.Controllers
             //{
             //    return BadRequest(ModelState);
             //}
+
+            repository.addGenre(genre);
             return NoContent();
         }
 

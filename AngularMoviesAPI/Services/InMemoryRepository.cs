@@ -28,5 +28,11 @@ namespace AngularMoviesAPI.Services
         {
             return _genres.FirstOrDefault(x => x.Id == Id); 
         }
+
+        public void addGenre(Genre genre)
+        {
+            genre.Id = _genres.Max(x => x.Id) + 1;
+            _genres.Add(genre);
+        }
     }
 }

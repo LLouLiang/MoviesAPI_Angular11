@@ -12,9 +12,10 @@ namespace AngularMoviesAPI.Entities
         //[Range(1, 9999)]
         public int Id { get; set; }
         [Required(ErrorMessage = "The field with name {0} is required")] // {0} is representing the name
-        [StringLength(30)]
+        [StringLength(50)]
         [FirstLetterUpperCase]
         public string Name { get; set; }
+
 
         // model validations
         // custom validation attribute -> implemention in folder AngularMoviesAPI.Validations

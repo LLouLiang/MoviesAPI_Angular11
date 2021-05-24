@@ -1,5 +1,8 @@
 ﻿using AngularMoviesAPI.Entities;
+using AngularMoviesAPI.Filters;
 using AngularMoviesAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -63,8 +66,8 @@ namespace AngularMoviesAPI.Controllers
             this.repository = repository;
             this.logger = logger;
         }
-        [HttpGet] // api/genres
-        [HttpGet("list")] // api/genres/list
+        [HttpGet] // the origin endpoint of this action is "api/genres"
+        [HttpGet("list")] // the endpoint of this action will be "api/genres/list"
         [HttpGet("/allGenres")] //allGenres : will override the previous route attribute settings
         // response to http request on webapi
         // !!! because the return type changed to task<genre list>, hence here need to be updated to async taks as well
@@ -76,6 +79,7 @@ namespace AngularMoviesAPI.Controllers
             // Here is getting from in-memory database, will be changed to webapi request
             return await repository.getAllGenres();
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // authroize user access only
         [HttpGet("{Id:int}/{param2=felipe}")] //api/genres/{Id} : we can add int to restrict the input parameter in the url to avoid user access this endpoint by mistake
         // If here using the same method signature Get will caused exception at running time
         public ActionResult<Genre> Get(int id, string param2)
@@ -85,11 +89,13 @@ namespace AngularMoviesAPI.Controllers
             if(genre == null)
             {
                 logger.LogWarning($"Genre with Id {id} not found");
-                return NotFound();
+                throw new ApplicationException();
             }
             return genre;
         }
         [HttpGet("{Id:int}")]
+        [ServiceFilter(typeof(CustomActionFilter))]
+        //[ResponseCache(Duration =  60)] // responseCaching filter is added/configured in startup.cs 
         public IActionResult Get(int id)
         {
             logger.LogDebug("get genre by Id has been called");

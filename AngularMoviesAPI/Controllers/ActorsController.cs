@@ -53,6 +53,25 @@ namespace AngularMoviesAPI.Controllers
             return NoContent();
 
         }
+        [HttpPost("SearchByName")]
+        public async Task<ActionResult<List<ActorsMovieDTO>>> SearchByName([FromBody] string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return new List<ActorsMovieDTO>();
+            }
+            return await context.Actors
+                .Where(x => x.name.Contains(name))
+                .OrderBy(x => x.name)
+                .Select(x => new ActorsMovieDTO
+                {
+                    id = x.id,
+                    name = x.name,
+                    picture = x.picture
+                })
+                .Take(5)
+                .ToListAsync();
+        }
         // api/actors
         // Form
         [HttpPost]

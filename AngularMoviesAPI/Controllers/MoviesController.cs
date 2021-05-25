@@ -3,6 +3,7 @@ using AngularMoviesAPI.Entities;
 using AngularMoviesAPI.helpers;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,25 +17,26 @@ namespace AngularMoviesAPI.Controllers
         // Services injection
         private readonly IMapper mapper;
         private readonly ApplicationDbContext context;
-        private readonly AzureStorageService storageService;
+        private readonly IFileStorageService storageService;
         private string container = "Movies";
 
-        public MoviesController(IMapper mapper, ApplicationDbContext context, AzureStorageService storageService)
+        public MoviesController(IMapper mapper, ApplicationDbContext context, IFileStorageService storageService)
         {
             this.mapper = mapper;
             this.context = context;
             this.storageService = storageService;
         }
-        //[httpget]
-        //public async task<actionresult<list<moviedto>>> get()
-        //{
-        //    return nocontent();
-        //}
-        //[httpget("{id:int}")]
-        //public async task<actionresult<moviedto>> get(int id)
-        //{
-        //    return nocontent();
-        //}
+
+        [HttpGet("PostGet")]
+        public async Task<ActionResult<MoviePostGetDTO>> PostGet()
+       {
+            var movietheaters = await context.MovieTheater.OrderBy(x=>x.name).ToListAsync();
+            var genres = await context.Genres.OrderBy(x=>x.Name).ToListAsync();
+            var movieTheaterDTO = mapper.Map<List<MovieTheaterDTO>>(movietheaters);
+            var genreDTO = mapper.Map<List<GenreDTO>>(genres);
+
+            return new MoviePostGetDTO() { genres = genreDTO, movieTheaters = movieTheaterDTO };
+        }
         [HttpPost]
         public async Task<ActionResult> Post([FromForm] MovieCreationDTO movietheaterDTO)
         {

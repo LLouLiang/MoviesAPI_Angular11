@@ -1,6 +1,10 @@
 ﻿using AngularMoviesAPI.Entities;
+using AngularMoviesAPI.Filters;
 using AngularMoviesAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,35 +60,51 @@ namespace AngularMoviesAPI.Controllers
     public class GenreController : ControllerBase
     {
         private readonly IRepository repository;
-        public GenreController(IRepository repository)
+        private readonly ILogger<GenreController> logger;
+        public GenreController(IRepository repository, ILogger<GenreController> logger)
         {
             this.repository = repository;
+            this.logger = logger;
         }
-        [HttpGet] // api/genres
-        [HttpGet("list")] // api/genres/list
+        [HttpGet] // the origin endpoint of this action is "api/genres"
+        [HttpGet("list")] // the endpoint of this action will be "api/genres/list"
         [HttpGet("/allGenres")] //allGenres : will override the previous route attribute settings
         // response to http request on webapi
         // !!! because the return type changed to task<genre list>, hence here need to be updated to async taks as well
         public async Task<ActionResult<List<Genre>>> Get()
         {
+           
+            logger.LogInformation("------------------------ Get all the genres started --------------------------------");
+                
             // Here is getting from in-memory database, will be changed to webapi request
             return await repository.getAllGenres();
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // authroize user access only
         [HttpGet("{Id:int}/{param2=felipe}")] //api/genres/{Id} : we can add int to restrict the input parameter in the url to avoid user access this endpoint by mistake
         // If here using the same method signature Get will caused exception at running time
         public ActionResult<Genre> Get(int id, string param2)
         {
+            logger.LogDebug("------------------------ Get genre by Id has been started --------------------------------");
             var genre = repository.getGenreById(id);
             if(genre == null)
             {
-                return NotFound();
+                logger.LogWarning($"Genre with Id {id} not found");
+                throw new ApplicationException();
             }
             return genre;
         }
         [HttpGet("{Id:int}")]
+        [ServiceFilter(typeof(CustomActionFilter))]
+        //[ResponseCache(Duration =  60)] // responseCaching filter is added/configured in startup.cs 
         public IActionResult Get(int id)
         {
+            logger.LogDebug("get genre by Id has been called");
             var genre = repository.getGenreById(id);
+            if(genre == null)
+            {
+                logger.LogWarning($"Genre with Id {id} not found");
+                return NotFound();
+            }
             return Ok(genre); // ok means 200 okay and genre wil be return as a response
         }
         [HttpPost]
@@ -98,6 +118,8 @@ namespace AngularMoviesAPI.Controllers
             //{
             //    return BadRequest(ModelState);
             //}
+
+            repository.addGenre(genre);
             return NoContent();
         }
 

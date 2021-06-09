@@ -10,6 +10,7 @@ namespace AngularMoviesAPI.Services
     {
         Task<List<Genre>> getAllGenres();
         Genre getGenreById(int Id);
+        void addGenre(Genre genre);
     }
 
 

@@ -53,7 +53,7 @@ namespace AngularMoviesAPI
             services.AddSingleton<GeometryFactory>(NtsGeometryServices
                 .Instance.CreateGeometryFactory(srid: 4326));
 
-            // Add service addCors to enable CROS communication between angular and web api
+            // Add service addCors to !!! ENABLE CROS communication between angular and web api
             // after added the addcors service, add this into app configure app.useCors() in configuration method
             services.AddCors(options =>
             {

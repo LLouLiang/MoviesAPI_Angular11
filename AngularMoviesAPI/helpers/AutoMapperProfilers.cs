@@ -32,10 +32,15 @@ namespace AngularMoviesAPI.helpers
                 .ForMember(x => x.movieGenres, options => options.MapFrom(mapMovieGenres))
                 .ForMember(x => x.movieActors, options => options.MapFrom(mapMovieActors))
                 .ForMember(x => x.movieTheaterMovies, options => options.MapFrom(mapMovieTheaterMovies));
+
+            CreateMap<Movie, MovieDTO>()
+                .ForMember(x => x.genres, options => options.MapFrom(MapMoviesGenres))
+                .ForMember(x => x.movieTheaters, options => options.MapFrom(MapMovieTheatersMovies))
+                .ForMember(x => x.actors, options => options.MapFrom(MapActors));
         }
 
         private List<MovieGenres> mapMovieGenres(MovieCreationDTO movieCreationDTO, Movie movie)
-        {
+        { 
             var result = new List<MovieGenres>();
             if (movieCreationDTO.genreIds == null) return result;
 
@@ -63,6 +68,58 @@ namespace AngularMoviesAPI.helpers
             foreach(var theaterId in movieCreationDTO.movietheaterIds)
             {
                 result.Add(new MovieTheaterMovies() { movieTheaterId = theaterId});
+            }
+            return result;
+        }
+
+        private List<GenreDTO> MapMoviesGenres(Movie movie, MovieDTO moviedto)
+        {
+            var result = new List<GenreDTO>();
+            if(movie.movieGenres != null)
+            {
+                foreach(var genre in movie.movieGenres)
+                {
+                    result.Add(new GenreDTO() { Id = genre.genreId, Name = genre.Genre.Name});
+                }
+            }
+            return result;
+        }
+
+        private List<MovieTheaterDTO> MapMovieTheatersMovies(Movie movie, MovieDTO moviedto)
+        {
+            var result = new List<MovieTheaterDTO>();
+            if (movie.movieTheaterMovies != null)
+            {
+                foreach(var movieTheater in movie.movieTheaterMovies)
+                {
+                    result.Add(new MovieTheaterDTO()
+                    {
+                        id = movieTheater.movieTheaterId,
+                        name = movieTheater.movieTheater.name,
+                        latitude = movieTheater.movieTheater.location.X,
+                        longitude = movieTheater.movieTheater.location.Y
+                    });
+                }
+            }
+            return result;
+        }
+
+        private List<ActorsMovieDTO> MapActors(Movie movie, MovieDTO moviedto)
+        {
+            var result = new List<ActorsMovieDTO>();
+            if (movie.movieActors != null)
+            {
+                foreach(var actor in movie.movieActors)
+                {
+                    result.Add(new ActorsMovieDTO()
+                    {
+                        id = actor.actorId,
+                        name = actor.actor.name,
+                        character = actor.character,
+                        picture = actor.actor.picture,
+                        order = actor.order
+                    });
+                }
             }
             return result;
         }

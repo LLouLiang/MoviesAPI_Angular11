@@ -1,11 +1,74 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+using NetTopologySuite.Geometries;
 
 namespace AngularMoviesAPI.Migrations
 {
-    public partial class Movieandfriends : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Actors",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
+                    dateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    biography = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    picture = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Actors", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Genres",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Genres", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Movie",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    summary = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    trailer = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    inTheater = table.Column<bool>(type: "bit", nullable: false),
+                    releaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    poster = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Movie", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MovieTheater",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(75)", maxLength: 75, nullable: false),
+                    location = table.Column<Point>(type: "geography", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MovieTheater", x => x.id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "MovieActors",
                 columns: table => new
@@ -106,6 +169,18 @@ namespace AngularMoviesAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "MovieTheaterMovies");
+
+            migrationBuilder.DropTable(
+                name: "Actors");
+
+            migrationBuilder.DropTable(
+                name: "Genres");
+
+            migrationBuilder.DropTable(
+                name: "Movie");
+
+            migrationBuilder.DropTable(
+                name: "MovieTheater");
         }
     }
 }

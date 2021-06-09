@@ -173,7 +173,7 @@ namespace AngularMoviesAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("AngularMoviesAPI.Entities.Movie", "movie")
-                        .WithMany()
+                        .WithMany("movieActors")
                         .HasForeignKey("movieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -223,6 +223,8 @@ namespace AngularMoviesAPI.Migrations
 
             modelBuilder.Entity("AngularMoviesAPI.Entities.Movie", b =>
                 {
+                    b.Navigation("movieActors");
+
                     b.Navigation("movieGenres");
 
                     b.Navigation("movieTheaterMovies");

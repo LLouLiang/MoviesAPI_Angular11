@@ -18,7 +18,7 @@ namespace AngularMoviesAPI.Controllers
         private readonly IMapper mapper;
         private readonly ApplicationDbContext context;
         private readonly IFileStorageService storageService;
-        private string container = "Movies";
+        private string container = "movies";
 
         public MoviesController(IMapper mapper, ApplicationDbContext context, IFileStorageService storageService)
         {
@@ -26,7 +26,22 @@ namespace AngularMoviesAPI.Controllers
             this.context = context;
             this.storageService = storageService;
         }
-
+        [HttpGet("id:int")]
+        public async Task<ActionResult<MovieDTO>> Get(int id)
+        {
+            var movie = await context.Movie
+                .Include(x => x.movieGenres).ThenInclude(x => x.Genre)
+                .Include(x => x.movieTheaterMovies).ThenInclude(x => x.movieTheater)
+                .Include(x => x.movieActors).ThenInclude(x => x.actor)
+                .FirstOrDefaultAsync(x => x.id == id);
+            if(movie == null)
+            {
+                return NotFound();
+            }
+            var dto = mapper.Map<MovieDTO>(movie);
+            dto.actors = dto.actors.OrderBy(x => x.order).ToList();
+            return dto;
+        }
         [HttpGet("PostGet")]
         public async Task<ActionResult<MoviePostGetDTO>> PostGet()
        {
@@ -61,5 +76,6 @@ namespace AngularMoviesAPI.Controllers
                 }
             }
         }
+
     }
 }

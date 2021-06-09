@@ -11,8 +11,8 @@ using NetTopologySuite.Geometries;
 namespace AngularMoviesAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210523173031_Movie")]
-    partial class Movie
+    [Migration("20210529080457_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -95,6 +95,42 @@ namespace AngularMoviesAPI.Migrations
                     b.ToTable("Movie");
                 });
 
+            modelBuilder.Entity("AngularMoviesAPI.Entities.MovieActors", b =>
+                {
+                    b.Property<int>("actorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("movieId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("character")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("order")
+                        .HasColumnType("int");
+
+                    b.HasKey("actorId", "movieId");
+
+                    b.HasIndex("movieId");
+
+                    b.ToTable("MovieActors");
+                });
+
+            modelBuilder.Entity("AngularMoviesAPI.Entities.MovieGenres", b =>
+                {
+                    b.Property<int>("movieId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("genreId")
+                        .HasColumnType("int");
+
+                    b.HasKey("movieId", "genreId");
+
+                    b.HasIndex("genreId");
+
+                    b.ToTable("MovieGenres");
+                });
+
             modelBuilder.Entity("AngularMoviesAPI.Entities.MovieTheater", b =>
                 {
                     b.Property<int>("id")
@@ -113,6 +149,87 @@ namespace AngularMoviesAPI.Migrations
                     b.HasKey("id");
 
                     b.ToTable("MovieTheater");
+                });
+
+            modelBuilder.Entity("AngularMoviesAPI.Entities.MovieTheaterMovies", b =>
+                {
+                    b.Property<int>("movieTheaterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("movieId")
+                        .HasColumnType("int");
+
+                    b.HasKey("movieTheaterId", "movieId");
+
+                    b.HasIndex("movieId");
+
+                    b.ToTable("MovieTheaterMovies");
+                });
+
+            modelBuilder.Entity("AngularMoviesAPI.Entities.MovieActors", b =>
+                {
+                    b.HasOne("AngularMoviesAPI.Entities.Actor", "actor")
+                        .WithMany()
+                        .HasForeignKey("actorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AngularMoviesAPI.Entities.Movie", "movie")
+                        .WithMany("movieActors")
+                        .HasForeignKey("movieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("actor");
+
+                    b.Navigation("movie");
+                });
+
+            modelBuilder.Entity("AngularMoviesAPI.Entities.MovieGenres", b =>
+                {
+                    b.HasOne("AngularMoviesAPI.Entities.Genre", "Genre")
+                        .WithMany()
+                        .HasForeignKey("genreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AngularMoviesAPI.Entities.Movie", "Movie")
+                        .WithMany("movieGenres")
+                        .HasForeignKey("movieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
+
+                    b.Navigation("Movie");
+                });
+
+            modelBuilder.Entity("AngularMoviesAPI.Entities.MovieTheaterMovies", b =>
+                {
+                    b.HasOne("AngularMoviesAPI.Entities.Movie", "movie")
+                        .WithMany("movieTheaterMovies")
+                        .HasForeignKey("movieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AngularMoviesAPI.Entities.MovieTheater", "movieTheater")
+                        .WithMany()
+                        .HasForeignKey("movieTheaterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("movie");
+
+                    b.Navigation("movieTheater");
+                });
+
+            modelBuilder.Entity("AngularMoviesAPI.Entities.Movie", b =>
+                {
+                    b.Navigation("movieActors");
+
+                    b.Navigation("movieGenres");
+
+                    b.Navigation("movieTheaterMovies");
                 });
 #pragma warning restore 612, 618
         }
